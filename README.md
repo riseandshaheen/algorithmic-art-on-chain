@@ -1,4 +1,3 @@
-# Python DApp Template
+# [WIP] Algorithmic Art on-chain
 
-This is a template for Python Cartesi DApps. It uses python3 to execute the backend application.
-The application entrypoint is the `dapp.py` file.
+A place where creators can pick an algorithm, send inputs to the cartesi rollups to generate art via various procedural algorithms running inside the Cartesi Machine. Creator gets the option to mint the results as NFTs and put them on sale or auction.
