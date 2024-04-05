@@ -9,12 +9,24 @@ import io
 from cartesi_wallet.util import hex_to_str, str_to_hex
 import json
 import base64
+from eth_abi import encode, decode
+import web3
 
 logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
 
 rollup_server = environ["ROLLUP_HTTP_SERVER_URL"]
 logger.info(f"HTTP rollup_server url is {rollup_server}")
+
+creator_image_mapping = {}
+def map_image_to_creator(user_address, image_hash):
+    creator_image_mapping[user_address] = image_hash
+
+def binary2hex(binary):
+    """
+    Encode a binary as an hex string
+    """
+    return "0x" + binary.hex()
 
 # CLASSIC MANDELBROT ALGORITHM
 def generate_mandelbrot_fractal(width, height, max_iterations, xmin, xmax, ymin, ymax):
@@ -182,8 +194,24 @@ def handle_advance(data):
 
     # Generate SVG from fractal
     #mandelbrot_svg = generate_svg_from_fractal(fractal, xmin, xmax, ymin, ymax)
-    mandelbrot_svg = generate_base64_from_fractal(fractal, xmin, xmax, ymin, ymax, background_color, fractal_colors, fractal_cmap)
-    print(f"mandelbrot svg: {mandelbrot_svg}")
+    mandelbrot_base64 = generate_base64_from_fractal(fractal, xmin, xmax, ymin, ymax, background_color, fractal_colors, fractal_cmap)
+    print(f"mandelbrot svg: {mandelbrot_base64}")
+
+    # Generate report with base64 data
+    response = requests.post(rollup_server + "/report", json={"payload": str_to_hex(mandelbrot_base64)})
+
+    # store & map hash of the image to creator
+    image_hash = web3.Web3.keccak(mandelbrot_base64)
+    print(f"Image hash:  {image_hash}")
+    map_image_to_creator(msg_sender, image_hash)
+
+    # create voucher to mint 
+    MINT_TO_FUNCTION_SELECTOR = b'u^\xdd\x17\xdc\xc4t\x0f\x04w\xcc\xcd\x9e\xfc\xc1\xa5\x07f!\xad\x86\x95\x8f\xfay\xfe\xef\xea\xee\xbf`\xc6'[:4]
+    data = encode(['address'], [msg_sender])
+    voucher_payload = binary2hex(MINT_TO_FUNCTION_SELECTOR + data)
+    destination = "0x68E3Ee84Bcb7543268D361Bb92D3bBB17e90b838"
+    voucher_response = requests.post(rollup_server + "/voucher", json={"destination": destination, "payload": voucher_payload})
+    print("Voucher Craeted")
     return "accept"
 
 
