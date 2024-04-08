@@ -10,7 +10,7 @@ from cartesi_wallet.util import hex_to_str, str_to_hex
 import json
 import base64
 from eth_abi import encode, decode
-import web3
+import hashlib
 
 logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
@@ -201,17 +201,18 @@ def handle_advance(data):
     response = requests.post(rollup_server + "/report", json={"payload": str_to_hex(mandelbrot_base64)})
 
     # store & map hash of the image to creator
-    image_hash = web3.Web3.keccak(mandelbrot_base64)
+    base64_obj = base64.b64decode(mandelbrot_base64)
+    image_hash = hashlib.sha256(base64_obj).hexdigest()
     print(f"Image hash:  {image_hash}")
     map_image_to_creator(msg_sender, image_hash)
 
-    # create voucher to mint 
+    # create voucher to mint NFT
     MINT_TO_FUNCTION_SELECTOR = b'u^\xdd\x17\xdc\xc4t\x0f\x04w\xcc\xcd\x9e\xfc\xc1\xa5\x07f!\xad\x86\x95\x8f\xfay\xfe\xef\xea\xee\xbf`\xc6'[:4]
     data = encode(['address'], [msg_sender])
     voucher_payload = binary2hex(MINT_TO_FUNCTION_SELECTOR + data)
     destination = "0x68E3Ee84Bcb7543268D361Bb92D3bBB17e90b838"
     voucher_response = requests.post(rollup_server + "/voucher", json={"destination": destination, "payload": voucher_payload})
-    print("Voucher Craeted")
+    print("Voucher Created")
     return "accept"
 
 
