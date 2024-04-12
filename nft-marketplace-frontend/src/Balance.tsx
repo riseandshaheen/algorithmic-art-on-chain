@@ -129,7 +129,7 @@ export const Balance: React.FC = () => {
                     </Tr>}
                 </Tbody>
             </Table>
-            <Button onClick={() => inspectCall("balance/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")}>Get Balance</Button>
+            <Button onClick={() => inspectCall("balance/ether/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")}>Get Balance</Button>
             </Stack>
         </TableContainer>
         </Box>

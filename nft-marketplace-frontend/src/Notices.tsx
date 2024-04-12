@@ -122,7 +122,7 @@ export const Notices: React.FC = () => {
                         <Tr key={`${n.input.index}-${n.index}`}>
 
                             {/* Conditionally render deposit activity */}
-                            {payloadIsJSON(n.payload) ? (
+                            {/* payloadIsJSON(n.payload) ? (
                                 JSON.parse(n.payload).type === "etherdeposit" ? (
                                     <Td color={'grey'}><Badge colorScheme="cyan">{JSON.parse(n.payload).type}</Badge></Td>
                                 ) :
@@ -138,9 +138,9 @@ export const Notices: React.FC = () => {
                             ) : (
                                 // Render if payload is not JSON
                                 <Td color={'grey'}><Badge>DappAdressRelay</Badge></Td>
-                            )}
+                            ) */}
 
-                            {payloadIsJSON(n.payload) ? (
+                            {/* payloadIsJSON(n.payload) ? (
                                 JSON.parse(n.payload).type === "etherdeposit" ? (
                                     <Td color={'grey'}> {ethers.utils.formatEther((JSON.parse(n.payload).content).amount)} Ξ deposited to ctsi account {(JSON.parse(n.payload).content).address} </Td>
                                 ) :
@@ -156,7 +156,7 @@ export const Notices: React.FC = () => {
                             ) : (
                                 // Render if payload is not JSON
                                 <Td color={'grey'}>{n.payload}</Td>
-                            )}
+                            )*/}
 
 
 
