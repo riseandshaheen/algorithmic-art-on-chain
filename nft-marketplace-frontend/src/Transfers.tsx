@@ -65,6 +65,26 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
     }
   };
 
+  const sendIdenticonInput = async() => {
+    try{
+      await window.ethereum.enable();
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        console.log(account)
+      let dataObject = {
+        method: "identicon",
+        id: account
+      };
+      if (rollups && provider){
+        let jsonString = JSON.stringify(dataObject);
+        console.log("JSON Input: ", jsonString)
+        let payload = ethers.utils.toUtf8Bytes(jsonString);
+        await rollups.inputContract.addInput(propos.dappAddress, payload);
+      }
+    }
+    catch(e){console.log(`${e}`)}
+  }
+
   const sendMandelbrotInput = async (iterations: number, xmin: string, xmax: string, ymin: string, ymax: string, equation: string, bg_color: string, cmap: string) => {
     try {
       console.log("xmin, ymin, equation", xmin, ymin, equation)
@@ -319,6 +339,32 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
             <AccordionItem>
                 <h2>
                   <AccordionButton>
+                    Identicon
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel>
+                  <Stack>
+                    <Button
+                      width="25"
+                      colorScheme="green"
+                      size="sm"
+                      onClick={() => {
+                        sendIdenticonInput();
+                      }}
+                      disabled={!rollups}
+                    >
+                      Generate 👾
+                    </Button>
+                  </Stack>
+                  <br/>
+                </AccordionPanel>
+              </AccordionItem>
+
+            {/* Generate franctals */}
+            <AccordionItem>
+                <h2>
+                  <AccordionButton>
                     Mandelbrot Fractal
                     <AccordionIcon />
                   </AccordionButton>
@@ -327,7 +373,6 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
                   <Stack>
                     <NumberInput
                       defaultValue={1}
-                      min={1}
                       onChange={(value) => setIterations(Number(value))}
                       value={iterations}
                     >
@@ -348,6 +393,7 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
                     <Select placeholder='Mandelbrot' value={equation} onChange={e => setEquation(e.target.value)}>
                       <option value='mandelbrot'>Mandelbrot Classic</option>
                       <option value='burning_ship'>Burning Ship</option>
+                      <option value='julia_set'>Julia Set</option>
                     </Select>
                     <Select placeholder='Color Map' value={cmap} onChange={e => setCMap(e.target.value)}>
                       <option value='viridis'>Viridis</option>

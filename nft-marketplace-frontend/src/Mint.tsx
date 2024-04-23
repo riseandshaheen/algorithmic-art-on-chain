@@ -26,7 +26,13 @@ import {
     TableCaption,
     TableContainer,
     Button,
-    Text
+    Text,
+    Spinner,
+    SimpleGrid,
+    Box,
+    Flex,
+    Spacer,
+    Grid
   } from '@chakra-ui/react'
 
 type Report = {
@@ -48,13 +54,18 @@ type Voucher = {
 type IMintPropos = {
     dappAddress: string
 }
+type LoadingStates = {
+    [key: string]: boolean;
+  };
 
 export const Mint: React.FC<IMintPropos> = (propos) => {
     const [result,reexecuteQuery] = useReportsQuery();
     const { data, fetching, error } = result;
 
     const [ voucherToExecute, setVoucherToExecute ] = useState(0)
+    const [executionStatus, setExecutionStatus] = useState(false)
     const [voucherResult, reexecuteVoucherQuery] = useVoucherQuery({variables: { voucherIndex: 0, inputIndex: voucherToExecute }});
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
 
     const rollups = useRollups(propos.dappAddress);
 
@@ -111,8 +122,10 @@ export const Mint: React.FC<IMintPropos> = (propos) => {
             const voucherFetched = voucherResult.data?.voucher;
             console.log("voucher to use:::", voucherFetched)
             if (voucherFetched?.proof){
+                console.log("Proof found, calling smart contract")
                 const tx = await rollups.dappContract.executeVoucher( voucherFetched.destination, voucherFetched.payload, voucherFetched.proof );
                 const receipt = await tx.wait();
+                setExecutionStatus(true)
                 console.log("Voucher execution result: ", receipt.events)
             }
             else{
@@ -125,28 +138,46 @@ export const Mint: React.FC<IMintPropos> = (propos) => {
         }
     }
 
+    const handleExecuteVoucherClick = (index: any) => {
+        toggleLoadingState(index, true);
+        
+        setTimeout(() => {
+            toggleLoadingState(index, false);
+            executeVoucher(index);
+        }, 2000); 
+      };
+    
+    // Function to toggle loading state for a specific card
+    const toggleLoadingState = (cardId: number, isLoading: boolean) => {
+        setLoadingStates((prevLoadingStates) => ({
+        ...prevLoadingStates,
+        [cardId]: isLoading,
+        }));
+    };
+
     return (
         <div>
             {/* List all reports */}
+            <Grid templateColumns='repeat(3, 1fr)' gap={6}>
             {reports.map((n: any) => (
+                <Card maxW='sm' marginBottom='5' key={`${n.input.index}-${n.index}`}>
+                    {/* <Td>{n.input.index}</Td>
+                    <Td>{n.index}</Td> */}
+                    {/* <td>{n.input.payload}</td> */}
 
-                        <Card maxW='sm' marginBottom='5' key={`${n.input.index}-${n.index}`}>
-                            {/* <Td>{n.input.index}</Td>
-                            <Td>{n.index}</Td> */}
-                            {/* <td>{n.input.payload}</td> */}
-
-                            <CardBody color={'grey'}>
-                                        <Image
-                                        src={`data:image/png;base64, ${n.payload}`}
-                                        borderRadius='lg'
-                                        />
-                                <Text>{n.input.index}</Text>
-                            </CardBody>
-                            <CardFooter>
-                                <Button onClick={() => executeVoucher(n.input.index)}> Mint </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
+                    <CardBody color={'grey'}>
+                                <Image
+                                src={`data:image/png;base64, ${n.payload}`}
+                                borderRadius='lg'
+                                />
+                        <Text>{n.input.index}</Text>
+                    </CardBody>
+                    <CardFooter>
+                        <Button onClick={() => handleExecuteVoucherClick(`${n.input.index}-${n.index}`)} > {loadingStates[`${n.input.index}-${n.index}`] ? <Spinner />: "Mint"}</Button>
+                    </CardFooter>
+                </Card>
+            ))}
+            </Grid>
         </div>
 
     );

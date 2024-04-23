@@ -45,7 +45,7 @@ init({
 });
 
 const App: FC = () => {
-    const [dappAddress, setDappAddress] = useState<string>("0x70ac08179605AF2D9e75782b8DEcDD3c22aA4D0C");
+    const [dappAddress, setDappAddress] = useState<string>("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e");
 
     return (
         <SimpleGrid columns={1} marginLeft={'25%'} marginRight={'25%'}>  
@@ -71,7 +71,7 @@ const App: FC = () => {
                 </Box>
             </Stack>
                 <br />
-                    <Balance />
+                    {/* <Balance /> */}
                     <br /> <br />
                     <Transfers dappAddress={dappAddress} />
                     <br /> <br />
