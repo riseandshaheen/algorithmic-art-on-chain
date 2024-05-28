@@ -43,6 +43,7 @@ import { Vouchers } from "./Vouchers";
 import { Notices } from "./Notices";
 import { Reports } from "./Reports";
 import { Mint } from "./Mint";
+import {Listings} from "./Listings";
 
 interface IInputPropos {
   dappAddress: string;
@@ -325,6 +326,7 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
       <TabList>
         <Tab>🎨 Generate</Tab>
         <Tab>🎟️ Mint</Tab>
+        <Tab>🌏 Explore</Tab>
         <Tab>🔔 Activity</Tab>
       </TabList>
       <Box p={4} display="flex">
@@ -581,6 +583,9 @@ export const Transfers: React.FC<IInputPropos> = (propos) => {
                {/* dappRelayedAddress && <Vouchers dappAddress={propos.dappAddress} /> */}
                {<Mint dappAddress={propos.dappAddress}/> }
             </Accordion>
+          </TabPanel>
+          <TabPanel>
+            <Listings dappAddress={propos.dappAddress}/>
           </TabPanel>
           <TabPanel>
             <Notices />
